@@ -35,7 +35,17 @@ get_backend_port() {
 
 has_npm_script() {
   local script="$1"
-  node -e "const fs=require('fs');const pkg=JSON.parse(fs.readFileSync('package.json','utf8'));process.exit(pkg.scripts&&pkg.scripts['$script']?0:1)"
+  if node -e "const fs=require('fs');const pkg=JSON.parse(fs.readFileSync('package.json','utf8'));process.exit(pkg.scripts&&pkg.scripts['$script']?0:1)"; then
+    return 0
+  fi
+
+  local node_status=$?
+  if [ "$node_status" -eq 1 ]; then
+    return 1
+  fi
+
+  echo "Failed to check npm script '$script': unable to read package.json" >&2
+  exit 1
 }
 
 ensure_env_file() {

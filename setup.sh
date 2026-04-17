@@ -83,8 +83,8 @@ setup_service "$PROJECT_ROOT/frontend" "frontend"
 setup_env_file "$PROJECT_ROOT/backend" "backend"
 setup_env_file "$PROJECT_ROOT/frontend" "frontend"
 
-chmod +x "$PROJECT_ROOT/start.sh" "$PROJECT_ROOT/setup.sh"
-print_success "Executable permissions ensured for setup/start scripts"
+chmod +x "$PROJECT_ROOT/start.sh"
+print_success "Executable permissions ensured for start.sh"
 
 echo ""
 echo "==========================================="
