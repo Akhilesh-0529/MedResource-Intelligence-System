@@ -87,7 +87,6 @@ npm run migrate
 │   │   └── App.jsx      # Main app component
 │   └── vite.config.js   # Vite configuration
 ├── .github/workflows/   # CI/CD pipelines
-├── CONTRIBUTING.md      # Contribution guidelines
 └── README.md           # This file
 ```
 
@@ -164,14 +163,6 @@ npm run build
 ## 🔐 Environment Variables
 
 See `.env.example` files in both `backend/` and `frontend/` directories for required configuration.
-
-## 🤝 Contributing
-
-Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
-
-## 📝 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
 
 ## 👥 Authors
 
