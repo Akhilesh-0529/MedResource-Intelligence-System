@@ -56,7 +56,17 @@ run_services() {
   echo "Frontend PID: $FRONTEND_PID"
   echo "Press Ctrl+C to stop both services."
 
-  wait -n "$BACKEND_PID" "$FRONTEND_PID"
+  cleanup() {
+    for pid in "$BACKEND_PID" "$FRONTEND_PID"; do
+      if kill -0 "$pid" 2>/dev/null; then
+        kill "$pid" 2>/dev/null || true
+      fi
+    done
+  }
+
+  trap cleanup EXIT INT TERM
+
+  wait "$BACKEND_PID" "$FRONTEND_PID"
 }
 
 case "$MODE" in

@@ -17,7 +17,8 @@ Optional for AI analysis endpoint:
 ## 2) Clone and move to project root
 
 ```bash
-cd /home/runner/work/MedResource-Intelligence-System/MedResource-Intelligence-System
+git clone <repository-url>
+cd MedResource-Intelligence-System
 ```
 
 ## 3) Configure environment files

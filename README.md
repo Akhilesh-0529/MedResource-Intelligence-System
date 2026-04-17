@@ -21,12 +21,12 @@ MedResource Intelligence System is a full-stack application for managing hospita
 ### Option 1: Automated (recommended)
 
 ```bash
-bash /home/runner/work/MedResource-Intelligence-System/MedResource-Intelligence-System/scripts/setup-build-run.sh
+bash scripts/setup-build-run.sh
 ```
 
 ### Option 2: Manual
 
-Follow `/home/runner/work/MedResource-Intelligence-System/MedResource-Intelligence-System/SETUP.md`.
+See [SETUP.md](SETUP.md).
 
 ## Default Local URLs
 
