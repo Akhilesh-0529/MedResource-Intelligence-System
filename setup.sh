@@ -176,78 +176,7 @@ VITE_ENABLE_DEBUG_MODE=false
 EOF
 print_success "Frontend .env.example created"
 
-# Step 5: Create CONTRIBUTING.md
-print_step "Creating CONTRIBUTING.md..."
-cat > CONTRIBUTING.md << 'EOF'
-# Contributing to MedResource Intelligence System
-
-Thank you for your interest in contributing! Please follow these guidelines.
-
-## Setup Instructions
-
-### Prerequisites
-- Node.js (v16 or higher)
-- npm or yarn
-- PostgreSQL (for database)
-
-### Backend Setup
-```bash
-cd backend
-npm install
-cp .env.example .env
-# Edit .env with your configuration
-npm run dev
-```
-
-### Frontend Setup
-```bash
-cd frontend
-npm install
-cp .env.example .env
-# Edit .env with your configuration
-npm run dev
-```
-
-## Development Workflow
-
-1. Create a feature branch: `git checkout -b feature/your-feature`
-2. Make your changes
-3. Commit with clear messages: `git commit -m "feat: add new feature"`
-4. Push to your fork: `git push origin feature/your-feature`
-5. Open a Pull Request
-
-## Code Style
-
-- Use ESLint for linting
-- Follow existing code patterns
-- Add comments for complex logic
-- Write meaningful commit messages
-
-## Testing
-
-- Write tests for new features
-- Run tests before submitting PR: `npm test`
-- Maintain or improve code coverage
-
-## Commit Message Format
-
-```
-<type>(<scope>): <subject>
-
-<body>
-
-<footer>
-```
-
-Types: feat, fix, docs, style, refactor, test, chore
-
-## Questions?
-
-Open an issue or contact the maintainers.
-EOF
-print_success "CONTRIBUTING.md created"
-
-# Step 6: Create GitHub Actions workflow for tests and linting
+# Step 5: Create GitHub Actions workflow for tests and linting
 print_step "Creating GitHub Actions workflow..."
 mkdir -p .github/workflows
 
@@ -458,7 +387,6 @@ npm run migrate
 │   │   └── App.jsx      # Main app component
 │   └── vite.config.js   # Vite configuration
 ├── .github/workflows/   # CI/CD pipelines
-├── CONTRIBUTING.md      # Contribution guidelines
 └── README.md           # This file
 ```
 
@@ -535,14 +463,6 @@ npm run build
 ## 🔐 Environment Variables
 
 See `.env.example` files in both `backend/` and `frontend/` directories for required configuration.
-
-## 🤝 Contributing
-
-Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
-
-## 📝 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
 
 ## 👥 Authors
 
@@ -887,7 +807,6 @@ echo ""
 echo "📋 Summary of changes:"
 echo "  ✓ .gitignore files created (backend, frontend, root)"
 echo "  ✓ .env.example files created"
-echo "  ✓ CONTRIBUTING.md created"
 echo "  ✓ DATABASE_SETUP.md created"
 echo "  ✓ README.md updated with complete documentation"
 echo "  ✓ GitHub Actions CI/CD workflow created"
@@ -903,7 +822,6 @@ echo "  3. Commit changes: git commit -m 'chore: initial setup'"
 echo "  4. Start development: ./start.sh"
 echo ""
 echo "📚 Documentation:"
-echo "  - CONTRIBUTING.md - Development guidelines"
 echo "  - DATABASE_SETUP.md - Database configuration"
 echo "  - README.md - Project overview and API docs"
 echo ""
