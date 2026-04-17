@@ -64,7 +64,7 @@ PORT=5001
 ```
 
 ```bash
-npm run dev
+npm start
 ```
 
 The backend server will start on `http://localhost:5001`
