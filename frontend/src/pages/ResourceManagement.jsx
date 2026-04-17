@@ -1,21 +1,29 @@
 import { useState } from 'react';
 import { useStore } from '../hooks/useStore';
 import axios from 'axios';
-import { Plus } from 'lucide-react';
+import { Plus, Trash2 } from 'lucide-react';
 
 const ResourceManagement = () => {
   const { resources } = useStore();
   const [showForm, setShowForm] = useState(false);
-  const [formData, setFormData] = useState({ name: '', type: 'Bed', department: '', totalQuantity: 1 });
+  const [formData, setFormData] = useState({ name: '', type: 'ICU Bed', department: '', totalQuantity: 1 });
 
   const handleAdd = async (e) => {
     e.preventDefault();
     try {
       await axios.post('http://localhost:5001/api/resources', formData);
       setShowForm(false);
-      setFormData({ name: '', type: 'Bed', department: '', totalQuantity: 1 });
+      setFormData({ name: '', type: 'ICU Bed', department: '', totalQuantity: 1 });
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      await axios.delete(`http://localhost:5001/api/resources/${id}`);
+    } catch (err) {
+      console.error("Failed to delete resource", err);
     }
   };
 
@@ -42,7 +50,14 @@ const ResourceManagement = () => {
             <div className="flex-1">
               <label className="block text-xs font-medium text-slate-500 mb-1">Type</label>
               <select value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})} className="w-full px-3 py-2 border rounded">
-                <option>Bed</option><option>Equipment</option><option>Lab</option>
+                <option>ICU Bed</option>
+                <option>General Bed</option>
+                <option>Pediatric Bed</option>
+                <option>Specialty Bed</option>
+                <option>Respiratory Equipment</option>
+                <option>Imaging Equipment</option>
+                <option>Emergency Equipment</option>
+                <option>Lab Equipment</option>
               </select>
             </div>
             <div className="flex-1">
@@ -67,6 +82,7 @@ const ResourceManagement = () => {
               <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Department</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Availability</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Status</th>
+              <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-slate-200">
@@ -82,6 +98,11 @@ const ResourceManagement = () => {
                       r.status === 'Low' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}`}>
                     {r.status}
                   </span>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                  <button onClick={() => handleDelete(r._id)} className="text-red-500 hover:text-red-700 transition">
+                    <Trash2 className="h-5 w-5" />
+                  </button>
                 </td>
               </tr>
             ))}

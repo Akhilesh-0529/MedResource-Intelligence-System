@@ -41,6 +41,10 @@ export const StoreProvider = ({ children }) => {
       });
     });
 
+    newSocket.on('resource-deleted', (deletedResourceId) => {
+      setResources(prev => prev.filter(r => r._id !== deletedResourceId));
+    });
+
     newSocket.on('patient-updated', (updatedPatient) => {
       setPatients(prev => {
         const index = prev.findIndex(p => p._id === updatedPatient._id);

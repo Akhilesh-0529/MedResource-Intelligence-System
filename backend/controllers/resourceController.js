@@ -33,3 +33,15 @@ export const updateResource = async (req, res) => {
     res.status(404).json({ message: 'Resource not found' });
   }
 };
+
+export const deleteResource = async (req, res) => {
+  const { id } = req.params;
+  const resource = await Resource.findByIdAndDelete(id);
+
+  if (resource) {
+    req.io.emit('resource-deleted', id);
+    res.json({ message: 'Resource removed' });
+  } else {
+    res.status(404).json({ message: 'Resource not found' });
+  }
+};
