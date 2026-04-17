@@ -6,8 +6,8 @@ This guide explains how to set up and run the MedResource Intelligence System lo
 
 Install the following:
 
-- Node.js 20+
-- npm 10+
+- Node.js 20.x or higher
+- npm 10.x or higher
 - MongoDB running locally (or an accessible MongoDB URI)
 
 Optional for AI analysis endpoint:
