@@ -57,14 +57,18 @@ run_services() {
   echo "Press Ctrl+C to stop both services."
 
   cleanup() {
-    for pid in "$BACKEND_PID" "$FRONTEND_PID"; do
-      [[ -n "$pid" ]] && kill "$pid" 2>/dev/null || true
-    done
+    [[ -n "${BACKEND_PID:-}" ]] && kill "$BACKEND_PID" 2>/dev/null || true
+    [[ -n "${FRONTEND_PID:-}" ]] && kill "$FRONTEND_PID" 2>/dev/null || true
   }
 
   trap cleanup EXIT INT TERM
 
-  wait "$BACKEND_PID" "$FRONTEND_PID"
+  if [[ -n "${BACKEND_PID:-}" && -n "${FRONTEND_PID:-}" ]]; then
+    wait "$BACKEND_PID" "$FRONTEND_PID"
+  else
+    echo "Failed to start one or more services."
+    exit 1
+  fi
 }
 
 case "$MODE" in
