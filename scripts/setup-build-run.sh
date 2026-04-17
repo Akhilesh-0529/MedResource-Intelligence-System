@@ -58,15 +58,20 @@ run_services() {
 
   cleanup() {
     for pid in "$BACKEND_PID" "$FRONTEND_PID"; do
-      if kill -0 "$pid" 2>/dev/null; then
-        kill "$pid" 2>/dev/null || true
-      fi
+      kill "$pid" 2>/dev/null || true
     done
   }
 
   trap cleanup EXIT INT TERM
 
-  wait "$BACKEND_PID" "$FRONTEND_PID"
+  set +e
+  wait -n "$BACKEND_PID" "$FRONTEND_PID"
+  exit_code=$?
+  set -e
+
+  cleanup
+  wait "$BACKEND_PID" "$FRONTEND_PID" 2>/dev/null || true
+  return "$exit_code"
 }
 
 case "$MODE" in
