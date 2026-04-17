@@ -124,38 +124,27 @@ print_success "Frontend .gitignore created"
 print_step "Creating backend .env.example..."
 cat > backend/.env.example << 'EOF'
 # Server Configuration
-PORT=5000
+PORT=5001
 NODE_ENV=development
 HOST=localhost
 
-# Database Configuration
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=medresource_db
-DB_USER=postgres
-DB_PASSWORD=your_password_here
+# MongoDB Configuration
+MONGO_URI=mongodb://localhost:27017/healthcare_db
 
 # JWT Configuration
 JWT_SECRET=your_jwt_secret_key_here
 JWT_EXPIRES_IN=24h
 
 # API Configuration
-API_BASE_URL=http://localhost:5000
+API_BASE_URL=http://localhost:5001
 CORS_ORIGIN=http://localhost:5173
 
-# AI Service Configuration
-AI_API_KEY=your_ai_api_key_here
-AI_API_URL=https://api.openai.com/v1
-
-# Email Configuration (Optional)
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USER=your_email@gmail.com
-SMTP_PASSWORD=your_app_password
+# Ollama/Gemma4 Configuration
+OLLAMA_URL=http://localhost:11434/api/generate
+OLLAMA_MODEL=gemma4:e4b
 
 # Logging
 LOG_LEVEL=info
-LOG_FILE=./logs/app.log
 EOF
 print_success "Backend .env.example created"
 
@@ -163,7 +152,7 @@ print_success "Backend .env.example created"
 print_step "Creating frontend .env.example..."
 cat > frontend/.env.example << 'EOF'
 # API Configuration
-VITE_API_BASE_URL=http://localhost:5000
+VITE_API_BASE_URL=http://localhost:5001
 VITE_API_TIMEOUT=30000
 
 # App Configuration
@@ -888,7 +877,7 @@ echo "📋 Summary of changes:"
 echo "  ✓ .gitignore files created (backend, frontend, root)"
 echo "  ✓ .env.example files created"
 echo "  ✓ CONTRIBUTING.md created"
-echo "  ✓ DATABASE_SETUP.md created"
+echo "  ✓ MONGODB_SETUP.md created"
 echo "  ✓ README.md updated with complete documentation"
 echo "  ✓ GitHub Actions CI/CD workflow created"
 echo "  ✓ Pre-commit hooks installed"
@@ -898,13 +887,13 @@ echo "  ✓ Startup script created (start.sh)"
 echo ""
 echo "🎯 Next Steps:"
 echo "  1. Update .env files in backend/ and frontend/"
-echo "  2. Set up PostgreSQL using DATABASE_SETUP.md"
+echo "  2. Set up MongoDB and Ollama using MONGODB_SETUP.md"
 echo "  3. Commit changes: git commit -m 'chore: initial setup'"
 echo "  4. Start development: ./start.sh"
 echo ""
 echo "📚 Documentation:"
 echo "  - CONTRIBUTING.md - Development guidelines"
-echo "  - DATABASE_SETUP.md - Database configuration"
+echo "  - MONGODB_SETUP.md - MongoDB & Ollama configuration"
 echo "  - README.md - Project overview and API docs"
 echo ""
 print_success "Happy coding! 🎉"
