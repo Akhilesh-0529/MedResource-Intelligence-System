@@ -36,7 +36,8 @@ An intelligent healthcare resource allocation system that optimizes patient care
 - Node.js (v16+)
 - npm or yarn
 - MongoDB (local or Atlas)
-- Ollama with Gemma 4 model
+- Ollama with Gemma4:e4b(custom model)
+- 
 - 8GB+ RAM recommended for AI inference
 
 ## 🚀 Quick Start
