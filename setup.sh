@@ -1,23 +1,33 @@
 #!/bin/bash
 
-# MedResource Intelligence System - Automated Setup Script
-# This script sets up all development and production configurations
+# MedResource Intelligence System - Comprehensive Setup Script
+# This script automates the complete setup of the healthcare resource allocation system
+# Supports macOS, Linux, and Windows (Git Bash)
 
 set -e
 
-echo "🚀 Starting automated setup for MedResource Intelligence System..."
-
-PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-cd "$PROJECT_ROOT"
-
-# Color codes for output
+# ============================================
+# Color Configuration
+# ============================================
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
+CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
-# Function to print colored output
+# ============================================
+# Utility Functions
+# ============================================
+
+print_header() {
+    echo ""
+    echo -e "${CYAN}╔══════════════════════════════════════════════════════╗${NC}"
+    echo -e "${CYAN}║${NC} $1"
+    echo -e "${CYAN}╚══════════════════════════════════════════════════════╝${NC}"
+    echo ""
+}
+
 print_step() {
     echo -e "${BLUE}▶ $1${NC}"
 }
@@ -34,9 +44,186 @@ print_error() {
     echo -e "${RED}✗ $1${NC}"
 }
 
-# Step 1: Create .gitignore for backend
-print_step "Creating backend .gitignore..."
-cat > backend/.gitignore << 'EOF'
+# Check if command exists
+command_exists() {
+    command -v "$1" >/dev/null 2>&1
+}
+
+# ============================================
+# Setup Start
+# ============================================
+
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$PROJECT_ROOT"
+
+print_header "MedResource Intelligence System - Setup"
+
+# ============================================
+# Step 1: Validate Prerequisites
+# ============================================
+
+print_step "Checking prerequisites..."
+
+# Check Node.js
+if ! command_exists node; then
+    print_error "Node.js is not installed"
+    echo "Please install Node.js v16+ from https://nodejs.org/"
+    exit 1
+else
+    NODE_VERSION=$(node -v)
+    print_success "Node.js found: $NODE_VERSION"
+fi
+
+# Check npm
+if ! command_exists npm; then
+    print_error "npm is not installed"
+    exit 1
+else
+    NPM_VERSION=$(npm -v)
+    print_success "npm found: $NPM_VERSION"
+fi
+
+# Check MongoDB
+if ! command_exists mongod && ! command_exists mongosh; then
+    print_warning "MongoDB not found. You'll need to install it separately"
+    print_warning "macOS: brew install mongodb-community"
+    print_warning "Linux: sudo apt install mongodb"
+    print_warning "Or use Docker: docker run -d -p 27017:27017 mongo:latest"
+else
+    print_success "MongoDB found"
+fi
+
+# Check Ollama
+if ! command_exists ollama; then
+    print_warning "Ollama not found. You'll need to install it from https://ollama.ai"
+    print_warning "macOS: brew install ollama"
+else
+    print_success "Ollama found"
+fi
+
+# ============================================
+# Step 2: Create Environment Files
+# ============================================
+
+print_header "Setting up environment variables"
+
+# Backend .env
+print_step "Creating backend/.env..."
+if [ ! -f backend/.env ]; then
+    cat > backend/.env << 'EOF'
+# Server Configuration
+PORT=5001
+NODE_ENV=development
+
+# Database Configuration
+MONGO_URI=mongodb://localhost:27017/healthcare_db
+
+# AI Service Configuration (Ollama)
+OLLAMA_URL=http://localhost:11434/api/generate
+OLLAMA_MODEL=gemma:7b
+
+# JWT Configuration (change this in production!)
+JWT_SECRET=your_super_secret_key_change_this_in_production_12345
+
+# Frontend URL (for CORS)
+FRONTEND_URL=http://localhost:5173
+EOF
+    print_success "backend/.env created"
+else
+    print_success "backend/.env already exists (skipped)"
+fi
+
+# Frontend .env
+print_step "Creating frontend/.env..."
+if [ ! -f frontend/.env ]; then
+    cat > frontend/.env << 'EOF'
+VITE_API_URL=http://localhost:5001
+EOF
+    print_success "frontend/.env created"
+else
+    print_success "frontend/.env already exists (skipped)"
+fi
+
+# ============================================
+# Step 3: Install Dependencies
+# ============================================
+
+print_header "Installing dependencies"
+
+print_step "Installing backend dependencies..."
+cd "$PROJECT_ROOT/backend"
+npm install
+print_success "Backend dependencies installed"
+
+print_step "Installing frontend dependencies..."
+cd "$PROJECT_ROOT/frontend"
+npm install
+print_success "Frontend dependencies installed"
+
+cd "$PROJECT_ROOT"
+
+# ============================================
+# Step 4: Database Initialization
+# ============================================
+
+print_header "Database initialization"
+
+print_step "Checking MongoDB connection..."
+if command_exists mongosh; then
+    if mongosh --eval "db.version()" >/dev/null 2>&1; then
+        print_success "MongoDB is running and accessible"
+        
+        print_step "Seeding database with initial data..."
+        cd "$PROJECT_ROOT/backend"
+        node seed.js 2>/dev/null || print_warning "Database seeding encountered an issue (data may already exist)"
+        print_success "Database initialization complete"
+    else
+        print_warning "MongoDB is installed but not running"
+        print_warning "Start MongoDB with: brew services start mongodb-community (macOS)"
+        print_warning "Or: sudo systemctl start mongod (Linux)"
+        print_warning "Database seeding will be skipped - please run manually later"
+    fi
+else
+    print_warning "MongoDB tools not found - skipping database initialization"
+    print_warning "Please start MongoDB and run: cd backend && node seed.js"
+fi
+
+cd "$PROJECT_ROOT"
+
+# ============================================
+# Step 5: Project Structure Verification
+# ============================================
+
+print_header "Verifying project structure"
+
+required_dirs=(
+    "backend/controllers"
+    "backend/models"
+    "backend/routes"
+    "backend/services"
+    "frontend/src/components"
+    "frontend/src/pages"
+    "frontend/src/context"
+    "frontend/src/hooks"
+)
+
+for dir in "${required_dirs[@]}"; do
+    if [ -d "$dir" ]; then
+        print_success "$dir exists"
+    else
+        print_error "$dir is missing"
+    fi
+done
+
+# ============================================
+# Step 6: Create .gitignore Files
+# ============================================
+
+print_step "Ensuring .gitignore files..."
+
+# Backend .gitignore
+if [ ! -f backend/.gitignore ]; then
+    cat > backend/.gitignore << 'EOF'
 # Dependencies
 node_modules/
 package-lock.json
@@ -48,6 +235,108 @@ yarn.lock
 .env.*.local
 
 # IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+
+# Build
+dist/
+build/
+EOF
+    print_success "backend/.gitignore created"
+fi
+
+# Frontend .gitignore
+if [ ! -f frontend/.gitignore ]; then
+    cat > frontend/.gitignore << 'EOF'
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Environment
+.env
+.env.local
+.env.production.local
+EOF
+    print_success "frontend/.gitignore created"
+fi
+
+# ============================================
+# Step 7: Summary
+# ============================================
+
+print_header "Setup Complete! ✅"
+
+echo -e "${GREEN}Your development environment is ready!${NC}\n"
+
+echo "📋 Next Steps:"
+echo ""
+echo "1. 🗄️  Start MongoDB (if not already running):"
+echo "   macOS: brew services start mongodb-community"
+echo "   Linux: sudo systemctl start mongod"
+echo ""
+echo "2. 🤖 Start Ollama (in a new terminal):"
+echo "   ollama serve"
+echo ""
+echo "3. 🚀 Start the application:"
+echo "   ./start.sh"
+echo ""
+echo "   OR manually in separate terminals:"
+echo "   Terminal 1 - Backend:  cd backend && npm start"
+echo "   Terminal 2 - Frontend: cd frontend && npm run dev"
+echo ""
+echo "📍 Access the application:"
+echo "   Frontend: http://localhost:5173"
+echo "   Backend:  http://localhost:5001"
+echo ""
+echo "📚 Default test credentials:"
+echo "   Admin Email:  admin@hospital.com"
+echo "   Admin Pass:   password"
+echo "   Staff Email:  staff@hospital.com"
+echo "   Staff Pass:   password"
+echo ""
+echo "🔧 Useful commands:"
+echo "   npm start (backend)  - Start backend server"
+echo "   npm run dev (frontend) - Start frontend dev server"
+echo "   npm run lint (frontend) - Lint frontend code"
+echo "   npm test (backend) - Run tests"
+echo "   node clearDB.js (backend) - Clear database"
+echo "   node seed.js (backend) - Seed database"
+echo ""
+echo "❓ Need help? Check README.md for detailed instructions"
+echo ""
 .vscode/
 .idea/
 *.swp
