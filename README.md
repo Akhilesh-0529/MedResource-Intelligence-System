@@ -36,7 +36,8 @@ An intelligent healthcare resource allocation system that optimizes patient care
 - Node.js (v16+)
 - npm or yarn
 - MongoDB (local or Atlas)
-- Ollama with Gemma 4 model
+- Ollama with Gemma4:e4b(custom model)
+- 
 - 8GB+ RAM recommended for AI inference
 
 ## 🚀 Quick Start
@@ -63,7 +64,7 @@ PORT=5001
 ```
 
 ```bash
-npm run dev
+npm start
 ```
 
 The backend server will start on `http://localhost:5001`
@@ -353,36 +354,5 @@ ollama list
 - **Database Queries**: <100ms average
 - **API Response Time**: <200ms (excluding AI)
 - **Real-time Updates**: <50ms via WebSocket
-
-## 🤝 Contributing
-
-Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
-
-## 📝 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 👥 Authors
-
-- **Akhilesh Yerram** - Initial work
-
-## � Support
-
-For issues or questions:
-1. Check [MONGODB_SETUP.md](MONGODB_SETUP.md) for setup issues
-2. Review [CONTRIBUTING.md](CONTRIBUTING.md) for development guidelines
-3. Open an issue on [GitHub Issues](https://github.com/Akhilesh-0529/MedResource-Intelligence-System/issues)
-
-## 📄 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 👥 Authors
-
-- **Akhilesh Yerram** - Initial work
-
----
-
-**Tech Stack**: Node.js • Express • React • Vite • MongoDB • Ollama • Gemma 4
 
 **Last Updated**: April 2026
