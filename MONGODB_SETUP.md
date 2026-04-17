@@ -258,26 +258,20 @@ chmod +x ollama
 docker run -d --name ollama -p 11434:11434 ollama/ollama
 
 # Pull model in container
-docker exec ollama ollama pull gemma:7b
+docker exec ollama ollama pull gemma4:e4b
 ```
 
 ### Pull AI Models
 
 ```bash
-# Pull Gemma 7B model (recommended for 8GB RAM)
-ollama pull gemma:7b
-
-# Pull Gemma 2B model (lightweight)
-ollama pull gemma:2b
-
-# Pull Llama 2 (if preferred)
-ollama pull llama2
+# Pull custom Gemma 4 model
+ollama pull gemma4:e4b
 
 # List pulled models
 ollama list
 
 # Remove a model
-ollama rm gemma:7b
+ollama rm gemma4:e4b
 ```
 
 ### Start Ollama Service
@@ -343,14 +337,14 @@ curl http://localhost:11434/api/tags
 
 # Generate text
 curl -X POST http://localhost:11434/api/generate -d '{
-  "model": "gemma:7b",
+  "model": "gemma4:e4b",
   "prompt": "Hello, how are you?",
   "stream": false
 }'
 
 # Expected response
 {
-  "model": "gemma:7b",
+  "model": "gemma4:e4b",
   "created_at": "2024-01-09T12:34:56.789Z",
   "response": "Hello! I'm doing well, thank you for asking...",
   "done": true,
@@ -372,7 +366,7 @@ import axios from 'axios';
 const OLLAMA_URL = 'http://localhost:11434/api/generate';
 
 axios.post(OLLAMA_URL, {
-  model: 'gemma:7b',
+  model: 'gemma4:e4b',
   prompt: 'Summarize: Patient has fever and cough',
   stream: false,
   format: 'json'
@@ -461,8 +455,7 @@ MONGO_URI=mongodb://localhost:27017/healthcare_db
 
 # Ollama AI Service
 OLLAMA_URL=http://localhost:11434/api/generate
-OLLAMA_MODEL=gemma:7b
-# Alternative models: gemma:2b, llama2
+OLLAMA_MODEL=gemma4:e4b
 
 # Server
 PORT=5001
@@ -516,10 +509,10 @@ ollama serve
 # Keep this terminal open
 ```
 
-**Error: "Invalid model 'gemma:7b'"**
+**Error: "Invalid model 'gemma4:e4b'"**
 ```bash
 # Model not downloaded. Pull it:
-ollama pull gemma:7b
+ollama pull gemma4:e4b
 
 # Verify models
 ollama list

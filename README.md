@@ -240,8 +240,7 @@ curl -fsSL https://ollama.ai/install.sh | sh
 ### 2. Pull Gemma 4 Model
 
 ```bash
-ollama pull gemma:7b
-# Or your custom model: ollama pull gemma4:e4b
+ollama pull gemma4:e4b
 ```
 
 ### 3. Start Ollama Service
@@ -255,7 +254,7 @@ ollama serve
 
 ```bash
 curl http://localhost:11434/api/generate -d '{
-  "model": "gemma:7b",
+  "model": "gemma4:e4b",
   "prompt": "Hello!"
 }'
 ```

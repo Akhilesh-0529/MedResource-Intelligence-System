@@ -120,7 +120,7 @@ MONGO_URI=mongodb://localhost:27017/healthcare_db
 
 # AI Service Configuration (Ollama)
 OLLAMA_URL=http://localhost:11434/api/generate
-OLLAMA_MODEL=gemma:7b
+OLLAMA_MODEL=gemma4:e4b
 
 # JWT Configuration (change this in production!)
 JWT_SECRET=your_super_secret_key_change_this_in_production_12345

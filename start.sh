@@ -99,7 +99,7 @@ PORT=5001
 NODE_ENV=development
 MONGO_URI=mongodb://localhost:27017/healthcare_db
 OLLAMA_URL=http://localhost:11434/api/generate
-OLLAMA_MODEL=gemma:7b
+OLLAMA_MODEL=gemma4:e4b
 JWT_SECRET=dev_secret_key_change_in_production
 FRONTEND_URL=http://localhost:5173
 EOF
