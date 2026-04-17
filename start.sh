@@ -58,7 +58,7 @@ NODE
     return 1
   fi
 
-  echo "Failed to check npm script '$script': unable to read package.json" >&2
+  echo "Failed to check npm script '$script': unable to parse package.json or inspect scripts" >&2
   exit 1
 }
 

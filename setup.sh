@@ -82,11 +82,11 @@ echo "🚀 Setting up MedResource Intelligence System..."
 require_command node
 require_command npm
 
-setup_service "$PROJECT_ROOT/backend" "backend"
-setup_service "$PROJECT_ROOT/frontend" "frontend"
+setup_service "$PROJECT_ROOT/backend" "Backend"
+setup_service "$PROJECT_ROOT/frontend" "Frontend"
 
-setup_env_file "$PROJECT_ROOT/backend" "backend"
-setup_env_file "$PROJECT_ROOT/frontend" "frontend"
+setup_env_file "$PROJECT_ROOT/backend" "Backend"
+setup_env_file "$PROJECT_ROOT/frontend" "Frontend"
 
 chmod +x "$PROJECT_ROOT/start.sh"
 print_success "Executable permissions ensured for start.sh"
