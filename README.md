@@ -101,8 +101,9 @@ Before installation, ensure you have:
 ```
 
 **Windows:**
-- Download installers from official websites
-- Or use Chocolatey: `choco install nodejs mongodb ollama`
+- Install Git Bash: https://gitforwindows.org/
+- Or use WSL2 (Windows Subsystem for Linux) for better compatibility
+- Download installers directly from official websites
 
 **Linux (Ubuntu/Debian):**
 ```bash
@@ -115,6 +116,7 @@ sudo apt update && sudo apt install -y nodejs npm curl
 
 ### Option 1: Automated Setup (Recommended)
 
+**macOS/Linux:**
 ```bash
 # Clone repository
 git clone https://github.com/Akhilesh-0529/MedResource-Intelligence-System.git
@@ -128,6 +130,25 @@ chmod +x setup.sh
 chmod +x start.sh
 ./start.sh
 ```
+
+**Windows (PowerShell or Git Bash):**
+```bash
+# Clone repository
+git clone https://github.com/Akhilesh-0529/MedResource-Intelligence-System.git
+cd "Health care resource allocation system"
+
+# Run setup (via Node.js - see manual option below)
+node backend/seed.js
+
+# Install dependencies
+cd backend && npm install
+cd ../frontend && npm install
+cd ..
+
+# Start services (see manual option for individual terminal commands)
+```
+
+Alternatively, use WSL2 (Windows Subsystem for Linux) and follow the macOS/Linux instructions.
 
 ### Option 2: Manual Setup
 
@@ -169,18 +190,41 @@ VITE_API_URL=http://localhost:5001
 
 #### 3. Start Services
 
-**Terminal 1 - Backend:**
+**macOS/Linux - Terminal 1 (Backend):**
 ```bash
 cd backend
 npm start
 # Backend running at http://localhost:5001
 ```
 
-**Terminal 2 - Frontend:**
+**macOS/Linux - Terminal 2 (Frontend):**
 ```bash
 cd frontend
 npm run dev
 # Frontend running at http://localhost:5173
+```
+
+**Windows - PowerShell Terminal 1 (Backend):**
+```powershell
+cd backend
+npm start
+```
+
+**Windows - PowerShell Terminal 2 (Frontend):**
+```powershell
+cd frontend
+npm run dev
+```
+
+**Windows - Git Bash (Alternative - Single Terminal for both services):**
+```bash
+# Terminal 1
+cd backend
+npm start &
+
+# Terminal 2
+cd ../frontend
+npm run dev
 ```
 
 ---
@@ -196,6 +240,31 @@ brew install mongodb-community
 brew services start mongodb-community
 ```
 
+**Windows (Direct Installer):**
+1. Download MongoDB Community from: https://www.mongodb.com/try/download/community
+2. Run the installer and follow the installation wizard
+3. Select "Install MongoDB as a Service" (recommended)
+4. MongoDB will start automatically and run as a Windows Service
+5. Verify installation:
+```powershell
+mongosh --version
+```
+
+**Windows (Chocolatey):**
+```powershell
+# Run PowerShell as Administrator
+choco install mongodb-community
+# MongoDB starts automatically as a service
+```
+
+**Windows (WSL2 - Ubuntu):**
+```bash
+# Inside WSL2 terminal
+sudo apt update
+sudo apt install -y mongodb
+sudo systemctl start mongodb
+```
+
 **Linux (Ubuntu):**
 ```bash
 curl -fsSL https://www.mongodb.org/static/pgp/server-6.0.asc | sudo apt-key add -
@@ -205,9 +274,20 @@ sudo apt install -y mongodb-org
 sudo systemctl start mongod
 ```
 
-**Docker:**
+**Docker (All Platforms):**
 ```bash
 docker run -d -p 27017:27017 --name mongodb mongo:latest
+```
+
+**Verify MongoDB is Running:**
+```bash
+# macOS/Linux
+mongosh mongodb://localhost:27017
+
+# Windows (PowerShell)
+mongosh mongodb://localhost:27017
+
+# If mongosh not in PATH, use full path or check MongoDB installation
 ```
 
 ### Seed Database
@@ -230,28 +310,91 @@ node clearDB.js  # Wipes all records (use with caution!)
 
 ### 1. Install Ollama
 
-Download and install from [Ollama.ai](https://ollama.ai)
+**Windows (Direct Download - Recommended):**
+1. Download from: https://ollama.ai
+2. Run the installer (OllamaSetup.exe)
+3. Follow the installation wizard
+4. Ollama will add itself to PATH automatically
+5. Verify installation in PowerShell:
+```powershell
+ollama --version
+```
 
-**macOS/Linux:**
+**Windows (Alternative - Chocolatey):**
+```powershell
+# Run PowerShell as Administrator
+choco install ollama
+```
+
+**Windows (WSL2 - Ubuntu):**
+```bash
+# Inside WSL2 terminal
+curl -fsSL https://ollama.ai/install.sh | sh
+```
+
+**macOS:**
+```bash
+# Download from https://ollama.ai
+# Or via Homebrew:
+brew install ollama
+```
+
+**Linux (Ubuntu/Debian):**
 ```bash
 curl -fsSL https://ollama.ai/install.sh | sh
+ollama serve  # Keep this terminal open
 ```
 
 ### 2. Pull Gemma 4 Model
 
+**Windows (PowerShell):**
+```powershell
+ollama pull gemma4:e4b
+```
+
+**macOS/Linux/WSL2:**
 ```bash
 ollama pull gemma4:e4b
 ```
 
 ### 3. Start Ollama Service
 
+**Windows (Automatic):**
+- Ollama runs as a background service automatically after installation
+- To manually start:
+```powershell
+ollama serve
+```
+
+**macOS:**
 ```bash
 ollama serve
-# Ollama API will be available at http://localhost:11434
+# Keep this terminal open
+```
+
+**Linux/WSL2:**
+```bash
+ollama serve
+# Keep this terminal open
 ```
 
 ### 4. Verify Setup
 
+**Windows (PowerShell):**
+```powershell
+# Test API endpoint
+curl http://localhost:11434/api/generate -Body @{
+    model = "gemma4:e4b"
+    prompt = "Hello!"
+    stream = $false
+} | ConvertTo-Json
+
+# Or using Invoke-WebRequest
+$response = Invoke-WebRequest -Uri "http://localhost:11434/api/tags"
+$response.Content
+```
+
+**macOS/Linux/WSL2:**
 ```bash
 curl http://localhost:11434/api/generate -d '{
   "model": "gemma4:e4b",
@@ -384,6 +527,8 @@ docker-compose -f docker-compose.dev.yml up
 ## 🔧 Troubleshooting
 
 ### MongoDB Connection Issues
+
+**macOS/Linux:**
 ```bash
 # Check if MongoDB is running
 mongosh
@@ -394,7 +539,24 @@ brew services start mongodb-community  # macOS
 sudo systemctl start mongod             # Linux
 ```
 
+**Windows:**
+```powershell
+# Check MongoDB service status
+Get-Service MongoDB | Select-Object Status
+
+# Start MongoDB service
+Start-Service MongoDB
+
+# Connect to MongoDB
+mongosh mongodb://localhost:27017
+
+# Or check if the service is running in Services app:
+# Press Win+R, type "services.msc", look for "MongoDB Server"
+```
+
 ### Ollama Connection Failed
+
+**macOS/Linux:**
 ```bash
 # Verify Ollama is running
 curl http://localhost:11434/api/tags
@@ -403,7 +565,21 @@ curl http://localhost:11434/api/tags
 ollama serve
 ```
 
+**Windows (PowerShell):**
+```powershell
+# Check if Ollama is running
+$response = try { Invoke-WebRequest -Uri "http://localhost:11434/api/tags" } catch { $null }
+if ($response) { "Ollama is running" } else { "Ollama is not running" }
+
+# Start Ollama
+ollama serve
+
+# Or check in Task Manager if ollama.exe is running
+```
+
 ### Port Already in Use
+
+**macOS/Linux:**
 ```bash
 # Backend (5001)
 lsof -i :5001
@@ -414,17 +590,83 @@ lsof -i :5173
 kill -9 <PID>
 ```
 
-### AI Service Timeout
-- Increase timeout in `backend/services/aiService.js`
-- Ensure Ollama has sufficient RAM
-- Use a smaller model if Gemma 4 is too large
+**Windows (PowerShell - Run as Administrator):**
+```powershell
+# Check port usage
+netstat -ano | findstr :5001
+netstat -ano | findstr :5173
+
+# Kill process by PID
+taskkill /PID <PID> /F
+
+# Alternative: Find and kill by port
+Get-NetTCPConnection -LocalPort 5001 | Select-Object -ExpandProperty OwnerProcess | ForEach-Object { taskkill /PID $_ /F }
+```
 
 ### Module Not Found Errors
+
+**macOS/Linux:**
 ```bash
 # Clear node_modules and reinstall
 rm -rf node_modules package-lock.json
 npm install
 ```
+
+**Windows (PowerShell):**
+```powershell
+# Clear node_modules and reinstall
+Remove-Item -Recurse -Force node_modules
+Remove-Item package-lock.json
+npm install
+
+# Or use rmdir command
+rmdir /s /q node_modules
+del package-lock.json
+npm install
+```
+
+### AI Service Timeout
+
+- Increase timeout in [backend/services/aiService.js](backend/services/aiService.js)
+- Ensure Ollama has sufficient RAM
+- Use a smaller model if Gemma 4 is too large
+- Check Event Viewer on Windows for Ollama errors
+
+### "npm: command not found" (Windows)
+
+```powershell
+# Reinstall Node.js from https://nodejs.org
+# Ensure Node.js is in your PATH
+
+# Verify installation
+node --version
+npm --version
+
+# If still not found, add Node.js to PATH manually:
+# Control Panel > System > Advanced System Settings > Environment Variables
+# Add C:\Program Files\nodejs to PATH
+```
+
+### Scripts Don't Execute on Windows
+
+```powershell
+# For .sh files, use Git Bash instead:
+# Open Git Bash and run:
+chmod +x setup.sh
+./setup.sh
+
+# Or use WSL2 (Windows Subsystem for Linux)
+wsl bash setup.sh
+```
+
+### CORS Errors in Frontend
+
+**Windows specific:** Ensure backend .env has:
+```env
+FRONTEND_URL=http://localhost:5173
+```
+
+And in backend server.js, CORS is configured correctly if using custom hosts.
 
 ---
 
