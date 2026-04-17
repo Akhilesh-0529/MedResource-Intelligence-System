@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useStore } from '../context/StoreContext';
+import { useStore } from '../hooks/useStore';
 import axios from 'axios';
 import { UserPlus, Bot, CheckCircle, Loader2 } from 'lucide-react';
 import classNames from 'classnames';

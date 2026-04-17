@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider, useAuth } from './context/AuthContext';
-import { StoreProvider } from './context/StoreContext';
+import { AuthProvider } from './context/AuthProvider';
+import { useAuth } from './hooks/useAuth';
+import { StoreProvider } from './context/StoreProvider';
 import Navbar from './components/Navbar';
 import Login from './pages/Login';
 import DashboardAdmin from './pages/DashboardAdmin';

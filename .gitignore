@@ -1,0 +1,54 @@
+# Node modules
+node_modules/
+*/node_modules/
+package-lock.json
+*/package-lock.json
+
+# Environment files
+.env
+.env.local
+.env.*.local
+backend/.env
+frontend/.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.sublime-project
+*.sublime-workspace
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build outputs
+dist/
+build/
+*/dist/
+*/build/
+
+# Temporary
+tmp/
+temp/
+.cache/
+
+# Database backups
+*.sql
+backups/
+
+# Coverage
+coverage/
+.nyc_output/
+
+# Docker volumes
+postgres_data/

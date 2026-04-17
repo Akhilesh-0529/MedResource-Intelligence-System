@@ -1,11 +1,9 @@
-import { useStore } from '../context/StoreContext';
+import { useStore } from '../hooks/useStore';
 import { Bed, Microchip, Activity, AlertTriangle } from 'lucide-react';
 import classNames from 'classnames';
 
-const DashboardWidget = ({ title, count, total, subtext, icon: Icon, type }) => {
-  const percentage = Math.round((count / total) * 100) || 0;
-  
-  const healthColor = classNames({
+const DashboardWidget = ({ title, count, total, subtext, icon, type }) => {
+  const IconComponent = icon;const healthColor = classNames({
     'text-normal bg-normal/10': type === 'normal',
     'text-urgent bg-urgent/10': type === 'warning',
     'text-critical bg-critical/10': type === 'critical',
@@ -22,7 +20,7 @@ const DashboardWidget = ({ title, count, total, subtext, icon: Icon, type }) => 
         <p className="text-xs text-slate-400 mt-2">{subtext}</p>
       </div>
       <div className={classNames("p-4 rounded-full", healthColor)}>
-        <Icon className="h-8 w-8" />
+        <IconComponent className="h-8 w-8" />
       </div>
     </div>
   );
