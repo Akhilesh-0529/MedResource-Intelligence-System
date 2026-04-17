@@ -39,8 +39,13 @@ setup_service() {
   local dir="$1"
   local label="$2"
 
-  if [ ! -d "$dir" ] || [ ! -f "$dir/package.json" ]; then
-    print_error "$label directory is missing a package.json: $dir"
+  if [ ! -d "$dir" ]; then
+    print_error "$label directory not found: $dir"
+    exit 1
+  fi
+
+  if [ ! -f "$dir/package.json" ]; then
+    print_error "$label package.json not found: $dir/package.json"
     exit 1
   fi
 

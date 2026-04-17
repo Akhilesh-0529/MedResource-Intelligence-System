@@ -35,7 +35,21 @@ get_backend_port() {
 
 has_npm_script() {
   local script="$1"
-  if node -e "const fs=require('fs');const pkg=JSON.parse(fs.readFileSync('package.json','utf8'));process.exit(pkg.scripts&&pkg.scripts['$script']?0:1)"; then
+  if node - "$script" <<'NODE'
+const fs = require('fs');
+const scriptName = process.argv[2];
+
+try {
+  const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+  const hasScript =
+    pkg.scripts &&
+    Object.prototype.hasOwnProperty.call(pkg.scripts, scriptName);
+  process.exit(hasScript ? 0 : 1);
+} catch {
+  process.exit(2);
+}
+NODE
+  then
     return 0
   fi
 
@@ -96,14 +110,14 @@ else
 fi
 FRONTEND_PID=$!
 
-BACKEND_PORT="$(get_backend_port)"
-BACKEND_PORT="${BACKEND_PORT:-5001}"
+BACKEND_LOCAL_PORT="$(get_backend_port)"
+BACKEND_LOCAL_PORT="${BACKEND_LOCAL_PORT:-5001}"
 
 echo ""
 echo "==========================================="
 print_success "Services started"
 echo "==========================================="
-echo "Backend:  http://localhost:${BACKEND_PORT}"
+echo "Backend:  http://localhost:${BACKEND_LOCAL_PORT}"
 echo "Frontend: http://localhost:5173"
 echo "Press Ctrl+C to stop all services"
 echo "==========================================="
