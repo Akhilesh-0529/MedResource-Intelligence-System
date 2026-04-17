@@ -1,42 +1,101 @@
 #!/bin/bash
 
+set -euo pipefail
+
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$PROJECT_ROOT"
+
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m'
+
+print_info() {
+  echo -e "${BLUE}▶ $1${NC}"
+}
+
+print_success() {
+  echo -e "${GREEN}✓ $1${NC}"
+}
+
+print_warning() {
+  echo -e "${YELLOW}⚠ $1${NC}"
+}
+
+get_backend_port() {
+  local env_file="$PROJECT_ROOT/backend/.env"
+  local example_file="$PROJECT_ROOT/backend/.env.example"
+
+  if [ -f "$env_file" ]; then
+    grep -E '^PORT=' "$env_file" | tail -n 1 | cut -d'=' -f2- || true
+  elif [ -f "$example_file" ]; then
+    grep -E '^PORT=' "$example_file" | tail -n 1 | cut -d'=' -f2- || true
+  fi
+}
+
+has_npm_script() {
+  local script="$1"
+  node -e "const fs=require('fs');const pkg=JSON.parse(fs.readFileSync('package.json','utf8'));process.exit(pkg.scripts&&pkg.scripts['$script']?0:1)"
+}
+
+ensure_env_file() {
+  local target="$1"
+  local example="$2"
+  local label="$3"
+
+  if [ ! -f "$target" ] && [ -f "$example" ]; then
+    print_warning "$label .env not found. Creating from example..."
+    cp "$example" "$target"
+    print_warning "Please review $target before running in production."
+  fi
+}
+
+cleanup() {
+  if [ -n "${BACKEND_PID:-}" ] && kill -0 "$BACKEND_PID" 2>/dev/null; then
+    kill "$BACKEND_PID" 2>/dev/null || true
+  fi
+  if [ -n "${FRONTEND_PID:-}" ] && kill -0 "$FRONTEND_PID" 2>/dev/null; then
+    kill "$FRONTEND_PID" 2>/dev/null || true
+  fi
+}
+
+trap cleanup EXIT INT TERM
+
 echo "🚀 Starting MedResource Intelligence System..."
 
-# Check if .env files exist
-if [ ! -f backend/.env ]; then
-    print_warning "Backend .env not found. Creating from example..."
-    cp backend/.env.example backend/.env
-    echo "⚠️  Please update backend/.env with your configuration"
-fi
+ensure_env_file "$PROJECT_ROOT/backend/.env" "$PROJECT_ROOT/backend/.env.example" "Backend"
+ensure_env_file "$PROJECT_ROOT/frontend/.env" "$PROJECT_ROOT/frontend/.env.example" "Frontend"
 
-if [ ! -f frontend/.env ]; then
-    print_warning "Frontend .env not found. Creating from example..."
-    cp frontend/.env.example frontend/.env
-fi
-
-# Start services in background
-echo "📦 Installing and starting backend..."
-cd backend
+print_info "Installing and starting backend..."
+cd "$PROJECT_ROOT/backend"
 npm install
-npm run dev &
+if has_npm_script dev; then
+  npm run dev &
+else
+  npm start &
+fi
 BACKEND_PID=$!
 
-cd ..
-echo "📦 Installing and starting frontend..."
-cd frontend
+print_info "Installing and starting frontend..."
+cd "$PROJECT_ROOT/frontend"
 npm install
-npm run dev &
+if has_npm_script dev; then
+  npm run dev &
+else
+  npm start &
+fi
 FRONTEND_PID=$!
+
+BACKEND_PORT="$(get_backend_port)"
+BACKEND_PORT="${BACKEND_PORT:-5001}"
 
 echo ""
 echo "==========================================="
-echo "✅ Services started successfully!"
+print_success "Services started"
 echo "==========================================="
-echo "Backend:  http://localhost:5000"
+echo "Backend:  http://localhost:${BACKEND_PORT}"
 echo "Frontend: http://localhost:5173"
-echo ""
 echo "Press Ctrl+C to stop all services"
 echo "==========================================="
 
-# Wait for both processes
-wait $BACKEND_PID $FRONTEND_PID
+wait "$BACKEND_PID" "$FRONTEND_PID"
