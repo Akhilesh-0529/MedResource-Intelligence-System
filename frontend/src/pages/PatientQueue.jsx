@@ -1,20 +1,50 @@
 import { useState } from 'react';
 import { useStore } from '../hooks/useStore';
-import axios from 'axios';
-import { UserPlus, Bot, CheckCircle, Loader2 } from 'lucide-react';
+import api from '../utils/api';
+import { UserPlus, Bot, CheckCircle, Loader2, Mic, Image as ImageIcon, X } from 'lucide-react';
 import classNames from 'classnames';
 
 const PatientQueue = () => {
   const { patients, resources } = useStore();
-  const [formData, setFormData] = useState({ name: '', age: '', symptoms: '' });
+  const [formData, setFormData] = useState({ name: '', age: '', symptoms: '', imageData: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [imagePreview, setImagePreview] = useState(null);
+
+  const handleAudioRecord = (e) => {
+    e.preventDefault();
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) return alert("Your browser does not support Speech Recognition.");
+    
+    const recognition = new SpeechRecognition();
+    recognition.onstart = () => setIsListening(true);
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript;
+      setFormData(prev => ({...prev, symptoms: prev.symptoms + (prev.symptoms ? ' ' : '') + transcript}));
+    };
+    recognition.onend = () => setIsListening(false);
+    recognition.start();
+  };
+
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+        setFormData(prev => ({...prev, imageData: reader.result}));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleCreatePatient = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      await axios.post('http://localhost:5001/api/patients', formData);
-      setFormData({ name: '', age: '', symptoms: '' });
+      await api.post('/api/patients', formData);
+      setFormData({ name: '', age: '', symptoms: '', imageData: '' });
+      setImagePreview(null);
     } catch (err) {
       console.error(err);
     }
@@ -24,7 +54,7 @@ const PatientQueue = () => {
   const handleAllocate = async (patientId, resourceId) => {
     if (!resourceId) return alert('Select a resource');
     try {
-      await axios.post('http://localhost:5001/api/patients/allocate', { patientId, resourceId });
+      await api.post('/api/patients/allocate', { patientId, resourceId });
     } catch (err) {
       alert(err.response?.data?.message || 'Error allocating resource');
     }
@@ -61,6 +91,31 @@ const PatientQueue = () => {
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">Symptoms (Detailed)</label>
             <textarea rows="4" value={formData.symptoms} onChange={e => setFormData({...formData, symptoms: e.target.value})} className="w-full px-3 py-2 border rounded" placeholder="Describe symptoms for AI triage..." required />
+            <div className="flex items-center gap-2 mt-2">
+              <button 
+                type="button" 
+                onClick={handleAudioRecord} 
+                className={classNames("flex items-center px-3 py-1.5 rounded text-sm font-medium transition", isListening ? "bg-red-100 text-red-600 animate-pulse" : "bg-slate-100 text-slate-700 hover:bg-slate-200")}
+              >
+                <Mic className="h-4 w-4 mr-1.5" /> {isListening ? 'Listening...' : 'Record Voice'}
+              </button>
+              <label className="flex items-center px-3 py-1.5 bg-slate-100 text-slate-700 hover:bg-slate-200 rounded text-sm font-medium transition cursor-pointer">
+                <ImageIcon className="h-4 w-4 mr-1.5" /> Attach Image
+                <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
+              </label>
+            </div>
+            {imagePreview && (
+              <div className="mt-3 relative inline-block">
+                <img src={imagePreview} alt="Preview" className="h-20 w-20 object-cover rounded border border-slate-200 shadow-sm" />
+                <button 
+                  type="button" 
+                  onClick={() => { setImagePreview(null); setFormData(p => ({...p, imageData: ''})); }}
+                  className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-0.5 hover:bg-red-600 shadow-sm"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </div>
+            )}
           </div>
           <button type="submit" disabled={isSubmitting} className="w-full bg-hospital-primary text-white py-2 rounded-md flex justify-center items-center font-medium disabled:opacity-75 disabled:cursor-not-allowed transition">
             {isSubmitting ? (

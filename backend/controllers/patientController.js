@@ -9,13 +9,13 @@ export const getPatients = async (req, res) => {
 };
 
 export const createPatient = async (req, res) => {
-  const { name, age, symptoms } = req.body;
+  const { name, age, symptoms, imageData } = req.body;
   
   // Call Gemma 4 locally
-  const aiResult = await predictUrgency(symptoms, age);
+  const aiResult = await predictUrgency(symptoms, age, imageData);
   
   const patient = new Patient({
-    name, age, symptoms, 
+    name, age, symptoms, imageData,
     priority: aiResult.suggestedPriority,
     aiAnalysis: aiResult,
     status: 'Waiting'
@@ -63,11 +63,32 @@ export const allocateResource = async (req, res) => {
     });
 
     req.io.emit('resource-updated', resource);
-    req.io.emit('patient-updated', patient);
+
+    // Re-fetch with populated references so the frontend gets full details
+    const populatedPatient = await Patient.findById(patient._id).populate('allocatedResources.resource');
+    req.io.emit('patient-updated', populatedPatient);
     
-    res.json({ patient, resource });
+    res.json({ patient: populatedPatient, resource });
   } catch (error) {
     console.error('Allocation Error:', error);
     res.status(500).json({ message: error.message || 'Internal server error during allocation' });
   }
 };
+
+export const deletePatient = async (req, res) => {
+  try {
+    const patientId = req.params.id;
+    const deletedPatient = await Patient.findByIdAndDelete(patientId);
+    
+    if (!deletedPatient) {
+      return res.status(404).json({ message: 'Patient not found' });
+    }
+    
+    req.io.emit('patient-deleted', patientId);
+    res.json({ message: 'Patient record deleted successfully' });
+  } catch (error) {
+    console.error('Delete Patient Error:', error);
+    res.status(500).json({ message: error.message || 'Error deleting patient' });
+  }
+};
+

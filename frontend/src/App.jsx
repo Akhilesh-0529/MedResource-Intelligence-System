@@ -7,6 +7,7 @@ import Login from './pages/Login';
 import DashboardAdmin from './pages/DashboardAdmin';
 import ResourceManagement from './pages/ResourceManagement';
 import PatientQueue from './pages/PatientQueue';
+import PatientRecords from './pages/PatientRecords';
 
 const ProtectedRoute = ({ children }) => {
   const { user } = useAuth();
@@ -41,6 +42,11 @@ function App() {
             <Route path="/patients" element={
               <ProtectedRoute>
                 <PatientQueue />
+              </ProtectedRoute>
+            } />
+            <Route path="/records" element={
+              <ProtectedRoute>
+                <PatientRecords />
               </ProtectedRoute>
             } />
             <Route path="*" element={<Navigate to="/dashboard" />} />

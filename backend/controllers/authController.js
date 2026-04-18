@@ -6,12 +6,13 @@ const generateToken = (id) => {
 };
 
 export const registerUser = async (req, res) => {
-  const { name, email, password, role } = req.body;
+  const { name, email, password } = req.body;
   const userExists = await User.findOne({ email });
   if (userExists) return res.status(400).json({ message: 'User already exists' });
 
-  // For testing, plain text password. In production, hash it using bcrypt.
-  const user = await User.create({ name, email, password, role });
+  // Always assign Staff role on public registration.
+  // Admin/Doctor roles can only be set by seed script or direct DB update.
+  const user = await User.create({ name, email, password, role: 'Staff' });
   if (user) {
     res.status(201).json({
       _id: user._id, name: user.name, email: user.email, role: user.role, token: generateToken(user._id)

@@ -1,16 +1,19 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { Activity, LayoutDashboard, Database, Users, LogOut } from 'lucide-react';
+import { useStore } from '../hooks/useStore';
+import { Activity, LayoutDashboard, Database, Users, LogOut, Wifi, WifiOff } from 'lucide-react';
 import classNames from 'classnames';
 
 const Navbar = () => {
   const { user, logout } = useAuth();
+  const { isOnline } = useStore();
   const location = useLocation();
 
   const links = [
     { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
     { name: 'Resources', path: '/resources', icon: Database },
-    { name: 'Patients', path: '/patients', icon: Users },
+    { name: 'Intake', path: '/patients', icon: Users },
+    { name: 'Records', path: '/records', icon: Activity },
   ];
 
   if (!user) return null;
@@ -42,7 +45,14 @@ const Navbar = () => {
               );
             })}
           </div>
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-3">
+            <div className={classNames(
+              "flex items-center px-2.5 py-1 rounded-full text-xs font-semibold transition-all duration-500",
+              isOnline ? "bg-green-500/20 text-green-300" : "bg-yellow-500/20 text-yellow-300 animate-pulse"
+            )}>
+              {isOnline ? <Wifi className="h-3 w-3 mr-1.5" /> : <WifiOff className="h-3 w-3 mr-1.5" />}
+              {isOnline ? 'Online' : 'Offline'}
+            </div>
             <div className="text-sm">
               <span className="block opacity-75 text-xs">Logged in as</span>
               <span className="font-bold">{user.name} ({user.role})</span>

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useStore } from '../hooks/useStore';
-import axios from 'axios';
+import api from '../utils/api';
 import { Plus, Trash2 } from 'lucide-react';
 
 const ResourceManagement = () => {
@@ -11,7 +11,7 @@ const ResourceManagement = () => {
   const handleAdd = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:5001/api/resources', formData);
+      await api.post('/api/resources', formData);
       setShowForm(false);
       setFormData({ name: '', type: 'ICU Bed', department: '', totalQuantity: 1 });
     } catch (err) {
@@ -21,7 +21,7 @@ const ResourceManagement = () => {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:5001/api/resources/${id}`);
+      await api.delete(`/api/resources/${id}`);
     } catch (err) {
       console.error("Failed to delete resource", err);
     }

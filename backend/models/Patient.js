@@ -4,6 +4,7 @@ const patientSchema = new mongoose.Schema({
   name: { type: String, required: true },
   age: { type: Number, required: true },
   symptoms: { type: String, required: true },
+  imageData: { type: String }, // Stores base64 image string
   priority: { type: String, enum: ['Critical', 'Emergency', 'Urgent', 'High', 'Normal', 'Low'], default: 'Normal' },
   aiAnalysis: {
      suggestedPriority: String,

@@ -13,14 +13,18 @@ const seedData = async () => {
     await mongoose.connect(MONGO_URI);
     console.log('Connected to DB');
 
-    await User.deleteMany();
-    await Resource.deleteMany();
-    await Patient.deleteMany();
+    // --- Users: upsert by email ---
+    const users = [
+      { name: 'Admin User', email: 'admin@hospital.com', password: 'password', role: 'Admin' },
+      { name: 'Staff User', email: 'staff@hospital.com', password: 'password', role: 'Staff' },
+    ];
+    for (const u of users) {
+      await User.findOneAndUpdate({ email: u.email }, u, { upsert: true, returnDocument: 'after' });
+    }
+    console.log(`✓ Users upserted (${users.length})`);
 
-    await User.create({ name: 'Admin User', email: 'admin@hospital.com', password: 'password', role: 'Admin' });
-    await User.create({ name: 'Staff User', email: 'staff@hospital.com', password: 'password', role: 'Staff' });
-
-    await Resource.insertMany([
+    // --- Resources: upsert by name ---
+    const resources = [
       { name: 'ICU Bed A1', type: 'ICU Bed', department: 'ICU', totalQuantity: 10, availableQuantity: 2, status: 'Low' },
       { name: 'General Ward Bed', type: 'General Bed', department: 'General', totalQuantity: 50, availableQuantity: 45, status: 'Available' },
       { name: 'Pediatric Bed', type: 'Pediatric Bed', department: 'Pediatrics', totalQuantity: 20, availableQuantity: 5, status: 'Available' },
@@ -31,9 +35,14 @@ const seedData = async () => {
       { name: 'Portable X-Ray', type: 'Imaging Equipment', department: 'ER', totalQuantity: 4, availableQuantity: 3, status: 'Available' },
       { name: 'Defibrillator', type: 'Emergency Equipment', department: 'ER', totalQuantity: 10, availableQuantity: 8, status: 'Available' },
       { name: 'Blood Bank Refrigerator', type: 'Lab Equipment', department: 'Laboratory', totalQuantity: 2, availableQuantity: 1, status: 'Low' },
-    ]);
+    ];
+    for (const r of resources) {
+      await Resource.findOneAndUpdate({ name: r.name }, r, { upsert: true, returnDocument: 'after' });
+    }
+    console.log(`✓ Resources upserted (${resources.length})`);
 
-    await Patient.insertMany([
+    // --- Patients: upsert by name + age ---
+    const patients = [
       { 
         name: 'John Doe', age: 45, symptoms: 'Severe chest pain, shortness of breath, left arm numbness.', 
         priority: 'Critical', status: 'Waiting',
@@ -64,9 +73,13 @@ const seedData = async () => {
         priority: 'Low', status: 'Discharged',
         aiAnalysis: { suggestedPriority: 'Low', reasoning: 'Routine chronic disease management, no acute risks identified.' }
       }
-    ]);
+    ];
+    for (const p of patients) {
+      await Patient.findOneAndUpdate({ name: p.name, age: p.age }, p, { upsert: true, returnDocument: 'after' });
+    }
+    console.log(`✓ Patients upserted (${patients.length})`);
 
-    console.log('Data Imported!');
+    console.log('Seed complete — existing records updated, new records inserted.');
     process.exit();
   } catch (error) {
     console.error(error);

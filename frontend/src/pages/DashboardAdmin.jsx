@@ -29,11 +29,11 @@ const DashboardWidget = ({ title, count, total, subtext, icon, type }) => {
 const DashboardAdmin = () => {
   const { resources, patients } = useStore();
 
-  const totalBeds = resources.filter(r => r.type === 'Bed').reduce((acc, curr) => acc + curr.totalQuantity, 0);
-  const availableBeds = resources.filter(r => r.type === 'Bed').reduce((acc, curr) => acc + curr.availableQuantity, 0);
+  const totalBeds = resources.filter(r => r.type.toLowerCase().includes('bed')).reduce((acc, curr) => acc + curr.totalQuantity, 0);
+  const availableBeds = resources.filter(r => r.type.toLowerCase().includes('bed')).reduce((acc, curr) => acc + curr.availableQuantity, 0);
   
-  const totalEquip = resources.filter(r => r.type === 'Equipment').reduce((acc, curr) => acc + curr.totalQuantity, 0);
-  const availableEquip = resources.filter(r => r.type === 'Equipment').reduce((acc, curr) => acc + curr.availableQuantity, 0);
+  const totalEquip = resources.filter(r => !r.type.toLowerCase().includes('bed')).reduce((acc, curr) => acc + curr.totalQuantity, 0);
+  const availableEquip = resources.filter(r => !r.type.toLowerCase().includes('bed')).reduce((acc, curr) => acc + curr.availableQuantity, 0);
 
   const waitingPatients = patients.filter(p => p.status === 'Waiting').length;
 
