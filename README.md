@@ -1,6 +1,6 @@
-# MedResource Intelligence System
+# MedResource Allocation and Booking 
 
-A comprehensive healthcare resource allocation system that optimizes patient care delivery through AI-driven intelligent resource management. This system combines real-time monitoring, AI-powered triage, and efficient resource distribution to enhance hospital operations.
+A comprehensive healthcare resource allocation and booking system that optimizes patient care delivery through AI-driven intelligent resource management. This system combines real-time monitoring, AI-powered triage, and efficient resource distribution to enhance hospital operations.
 
 **Live Demo**: [GitHub Repository](https://github.com/Akhilesh-0529/MedResource-Intelligence-System)
 
