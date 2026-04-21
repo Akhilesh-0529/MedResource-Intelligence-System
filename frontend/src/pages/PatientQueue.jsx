@@ -4,6 +4,9 @@ import api from '../utils/api';
 import { UserPlus, Bot, CheckCircle, Loader2, Mic, Image as ImageIcon, X } from 'lucide-react';
 import classNames from 'classnames';
 
+const createClientId = () =>
+  `client_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+
 const PatientQueue = () => {
   const { patients, resources, isOnline, addOptimisticPatient, allocateOptimisticResource } = useStore();
   const [formData, setFormData] = useState({ name: '', age: '', symptoms: '', imageData: '' });
@@ -41,11 +44,13 @@ const PatientQueue = () => {
   const handleCreatePatient = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
+    const requestPayload = { ...formData, clientId: createClientId() };
+
     try {
-      const res = await api.post('/api/patients', formData);
+      const res = await api.post('/api/patients', requestPayload);
       if (res.data?.isOffline) {
         addOptimisticPatient({
-          ...formData,
+          ...requestPayload,
           ...res.data,
           status: 'Waiting',
           priority: 'Pending Sync',
