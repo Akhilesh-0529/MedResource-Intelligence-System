@@ -27,13 +27,22 @@ const DashboardWidget = ({ title, count, total, subtext, icon, type }) => {
 };
 
 const DashboardAdmin = () => {
-  const { resources, patients } = useStore();
+  const { resources, patients, isOnline } = useStore();
 
-  const totalBeds = resources.filter(r => r.type.toLowerCase().includes('bed')).reduce((acc, curr) => acc + curr.totalQuantity, 0);
-  const availableBeds = resources.filter(r => r.type.toLowerCase().includes('bed')).reduce((acc, curr) => acc + curr.availableQuantity, 0);
-  
-  const totalEquip = resources.filter(r => !r.type.toLowerCase().includes('bed')).reduce((acc, curr) => acc + curr.totalQuantity, 0);
-  const availableEquip = resources.filter(r => !r.type.toLowerCase().includes('bed')).reduce((acc, curr) => acc + curr.availableQuantity, 0);
+  const bedResources = resources.filter((resource) =>
+    resource.type?.toLowerCase().includes('bed')
+  );
+  const equipmentResources = resources.filter(
+    (resource) => resource.type && !resource.type.toLowerCase().includes('bed')
+  );
+  const shortageResources = resources.filter(
+    (resource) => resource.status === 'Critical' || resource.status === 'Low'
+  );
+
+  const totalBeds = bedResources.reduce((acc, curr) => acc + curr.totalQuantity, 0);
+  const availableBeds = bedResources.reduce((acc, curr) => acc + curr.availableQuantity, 0);
+  const totalEquip = equipmentResources.reduce((acc, curr) => acc + curr.totalQuantity, 0);
+  const availableEquip = equipmentResources.reduce((acc, curr) => acc + curr.availableQuantity, 0);
 
   const waitingPatients = patients.filter(p => p.status === 'Waiting').length;
 
@@ -41,6 +50,12 @@ const DashboardAdmin = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Hospital Overview</h1>
+        {!isOnline && (
+          <span className="bg-yellow-100 text-yellow-800 text-sm font-semibold px-3 py-1 rounded-full border border-yellow-300 flex items-center shadow-sm">
+            <AlertTriangle className="h-4 w-4 mr-1.5" />
+            Offline Mode Active
+          </span>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -75,11 +90,11 @@ const DashboardAdmin = () => {
           <AlertTriangle className="h-5 w-5 mr-2 text-urgent" />
           Critical Shortages
         </h2>
-        {resources.filter(r => r.status === 'Critical' || r.status === 'Low').length === 0 ? (
+        {shortageResources.length === 0 ? (
           <p className="text-slate-500">No critical shortages.</p>
         ) : (
           <ul className="space-y-3">
-            {resources.filter(r => r.status === 'Critical' || r.status === 'Low').map(r => (
+            {shortageResources.map(r => (
               <li key={r._id} className="flex justify-between items-center p-3 rounded-lg bg-slate-50 border border-slate-100">
                 <span className="font-medium text-slate-700">{r.name} ({r.department})</span>
                 <span className={classNames(

@@ -131,7 +131,11 @@ export const StoreProvider = ({ children }) => {
 
     newSocket.on('patient-updated', (updatedPatient) => {
       setPatients(prev => {
-        const index = prev.findIndex(p => p._id === updatedPatient._id);
+        const index = prev.findIndex(p => 
+          p._id === updatedPatient._id || 
+          (updatedPatient.clientId && p._id === updatedPatient.clientId) ||
+          (updatedPatient.clientId && p.clientId === updatedPatient.clientId)
+        );
         if (index > -1) {
           const newPatients = [...prev];
           newPatients[index] = updatedPatient;
@@ -148,8 +152,38 @@ export const StoreProvider = ({ children }) => {
     };
   }, []);
 
+  const addOptimisticPatient = (patient) => {
+    // Ensure temporary patients always have an _id field assigned 
+    // so React keys and UI updates behave correctly.
+    const optimisticData = { ...patient, _id: patient._id || patient.clientId };
+    
+    setPatients((prev) => {
+      const index = prev.findIndex(p => p._id === optimisticData._id);
+      if (index > -1) return prev;
+      return [...prev, optimisticData];
+    });
+  };
+
+  const allocateOptimisticResource = (patientId, resourceId) => {
+    // 1. Decrement the resource
+    setResources(prev => prev.map(r => {
+      if (r._id === resourceId && r.availableQuantity > 0) {
+        return { ...r, availableQuantity: r.availableQuantity - 1 };
+      }
+      return r;
+    }));
+    
+    // 2. Mark patient as Allocated so they leave the Queue
+    setPatients(prev => prev.map(p => {
+      if (p._id === patientId || p.clientId === patientId) {
+        return { ...p, status: 'Allocated' };
+      }
+      return p;
+    }));
+  };
+
   return (
-    <StoreContext.Provider value={{ resources, patients, isOnline }}>
+    <StoreContext.Provider value={{ resources, patients, isOnline, addOptimisticPatient, allocateOptimisticResource }}>
       {children}
     </StoreContext.Provider>
   );

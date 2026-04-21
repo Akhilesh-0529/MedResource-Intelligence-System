@@ -5,7 +5,7 @@ import { UserPlus, Bot, CheckCircle, Loader2, Mic, Image as ImageIcon, X } from 
 import classNames from 'classnames';
 
 const PatientQueue = () => {
-  const { patients, resources } = useStore();
+  const { patients, resources, isOnline, addOptimisticPatient, allocateOptimisticResource } = useStore();
   const [formData, setFormData] = useState({ name: '', age: '', symptoms: '', imageData: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isListening, setIsListening] = useState(false);
@@ -42,7 +42,16 @@ const PatientQueue = () => {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      await api.post('/api/patients', formData);
+      const res = await api.post('/api/patients', formData);
+      if (res.data?.isOffline) {
+        addOptimisticPatient({
+          ...formData,
+          ...res.data,
+          status: 'Waiting',
+          priority: 'Pending Sync',
+          aiAnalysis: { reasoning: 'AI Triage pending successful sync...' }
+        });
+      }
       setFormData({ name: '', age: '', symptoms: '', imageData: '' });
       setImagePreview(null);
     } catch (err) {
@@ -54,7 +63,10 @@ const PatientQueue = () => {
   const handleAllocate = async (patientId, resourceId) => {
     if (!resourceId) return alert('Select a resource');
     try {
-      await api.post('/api/patients/allocate', { patientId, resourceId });
+      const res = await api.post('/api/patients/allocate', { patientId, resourceId });
+      if (res.data?.isOffline) {
+        allocateOptimisticResource(patientId, resourceId);
+      }
     } catch (err) {
       alert(err.response?.data?.message || 'Error allocating resource');
     }
@@ -73,12 +85,28 @@ const PatientQueue = () => {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div className="flex flex-col gap-6">
+      {!isOnline && (
+        <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded shadow-sm">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              <span className="text-yellow-400">⚡</span>
+            </div>
+            <div className="ml-3">
+              <p className="text-sm text-yellow-700 font-medium">
+                You are currently offline. Changes are saved locally and will sync automatically when reconnected.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
       
-      <div className="lg:col-span-1 border-r border-slate-200 pr-0 lg:pr-6">
-        <h2 className="text-xl font-bold mb-4 flex items-center">
-          <UserPlus className="h-5 w-5 mr-2 text-hospital-primary" /> Patient Intake
-        </h2>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <div className="lg:col-span-1 border-r border-slate-200 pr-0 lg:pr-6">
+          <h2 className="text-xl font-bold mb-4 flex items-center">
+            <UserPlus className="h-5 w-5 mr-2 text-hospital-primary" /> Patient Intake
+          </h2>
         <form onSubmit={handleCreatePatient} className="bg-white p-5 rounded-xl border border-slate-100 shadow-sm space-y-4">
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">Name</label>
@@ -142,9 +170,10 @@ const PatientQueue = () => {
                     "px-2 py-0.5 rounded text-xs font-bold uppercase",
                     p.priority === 'Critical' ? 'bg-red-100 text-red-700' : 
                     p.priority === 'Emergency' ? 'bg-orange-100 text-orange-700' :
-                    p.priority === 'Urgent' ? 'bg-yellow-100 text-yellow-700' : 'bg-green-100 text-green-700'
+                    p.priority === 'Urgent' ? 'bg-yellow-100 text-yellow-700' : 
+                    p.priority === 'Pending Sync' ? 'bg-slate-200 text-slate-700 border border-slate-300' : 'bg-green-100 text-green-700'
                   )}>
-                    {p.priority}
+                    {p.priority} {p.priority === 'Pending Sync' && '☁️'}
                   </span>
                 </div>
                 <p className="text-sm text-slate-600 mb-3">{p.symptoms}</p>
@@ -185,6 +214,7 @@ const PatientQueue = () => {
         </div>
       </div>
     </div>
+  </div>
   );
 };
 

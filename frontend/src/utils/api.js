@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { syncManager } from './SyncManager';
 
 // Resolves to deployed URL in production, localhost in dev
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001';
@@ -32,10 +33,23 @@ api.interceptors.response.use(
     setOnline(true);
     return response;
   },
-  (error) => {
-    if (!error.response) {
+  async (error) => {
+    if (!error.response && error.config) {
       // Network error — server unreachable
       setOnline(false);
+      
+      const { method, url, data, headers } = error.config;
+      if (['post', 'put', 'delete', 'patch'].includes(method) && !headers['X-Sync-Replay']) {
+        const parsedData = data ? JSON.parse(data) : {};
+        const mockedResponseData = syncManager.enqueue(method, url, parsedData);
+        
+        // Resolve a fake 200 response to continue Optimistic UI
+        return Promise.resolve({
+          data: { ...mockedResponseData, _id: mockedResponseData.clientId, isOffline: true },
+          status: 200,
+          statusText: 'OK (Offline)'
+        });
+      }
     }
     return Promise.reject(error);
   }
@@ -54,4 +68,8 @@ export const checkServerHealth = async () => {
 };
 
 export const API_BASE_URL = BASE_URL;
+
+// Initialize syncManager to avoid circular dependencies
+syncManager.init(api, getConnectionStatus, onConnectionChange);
+
 export default api;

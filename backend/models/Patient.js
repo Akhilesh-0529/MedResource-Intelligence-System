@@ -10,6 +10,7 @@ const patientSchema = new mongoose.Schema({
      suggestedPriority: String,
      reasoning: String,
   },
+  clientId: { type: String, unique: true, sparse: true }, // Used for offline idempotency
   status: { type: String, enum: ['Waiting', 'Allocated', 'In Treatment', 'Discharged'], default: 'Waiting' },
   allocatedResources: [{
     resource: { type: mongoose.Schema.Types.ObjectId, ref: 'Resource' },

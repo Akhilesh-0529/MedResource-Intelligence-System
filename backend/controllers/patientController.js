@@ -9,13 +9,21 @@ export const getPatients = async (req, res) => {
 };
 
 export const createPatient = async (req, res) => {
-  const { name, age, symptoms, imageData } = req.body;
+  const { name, age, symptoms, imageData, clientId } = req.body;
   
+  // Idempotency check for offline-first sync
+  if (clientId) {
+    const existingPatient = await Patient.findOne({ clientId });
+    if (existingPatient) {
+        return res.status(200).json(existingPatient);
+    }
+  }
+
   // Call Gemma 4 locally
   const aiResult = await predictUrgency(symptoms, age, imageData);
   
   const patient = new Patient({
-    name, age, symptoms, imageData,
+    name, age, symptoms, imageData, clientId,
     priority: aiResult.suggestedPriority,
     aiAnalysis: aiResult,
     status: 'Waiting'

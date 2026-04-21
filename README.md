@@ -522,6 +522,39 @@ To run the entire stack with Docker:
 docker-compose -f docker-compose.dev.yml up
 ```
 
+## 🌐 Online Deployment (Cloud)
+
+To make the system accessible online globally, you can deploy the Backend to Render, the Frontend to Vercel, and use MongoDB Atlas.
+
+### 1. Database (MongoDB Atlas)
+1. Create a free M0 cluster on [MongoDB Atlas](https://www.mongodb.com/atlas/database).
+2. Set network access to `0.0.0.0/0`.
+3. Create a database user and copy the connection string.
+
+### 2. Backend (Render)
+Make sure your code is pushed to a GitHub repository.
+1. Sign up on [Render](https://render.com/).
+2. Create a **New Web Service** and connect your repository.
+3. Use the following settings:
+   - **Root Directory**: `backend`
+   - **Build Command**: `npm install`
+   - **Start Command**: `npm start`
+4. **Environment Variables**:
+   - `MONGO_URI`: Your MongoDB Atlas connection string.
+   - `PORT`: `5001`
+5. Deploy and copy the live URL (e.g., `https://healthcare-backend.onrender.com`).
+*(Note: A `render.yaml` file is included in the project for automated Render deployment.)*
+
+### 3. Frontend (Vercel)
+1. Sign up on [Vercel](https://vercel.com/) and create a **New Project**.
+2. Connect your GitHub repository.
+3. Use the following settings:
+   - **Framework Preset**: Vite
+   - **Root Directory**: `frontend`
+4. **Environment Variables**:
+   - `VITE_API_URL`: Your Render backend URL.
+5. Deploy!
+
 ---
 
 ## 🔧 Troubleshooting
