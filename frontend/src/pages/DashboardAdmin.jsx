@@ -29,8 +29,8 @@ const DashboardWidget = ({ title, count, total, subtext, icon, type }) => {
 const DashboardAdmin = () => {
   const { resources, patients, isOnline } = useStore();
 
-  const bedResources = resources.filter((resource) =>
-    resource.type?.toLowerCase().includes('bed')
+  const bedResources = resources.filter(
+    (resource) => resource.type && resource.type.toLowerCase().includes('bed')
   );
   const equipmentResources = resources.filter(
     (resource) => resource.type && !resource.type.toLowerCase().includes('bed')

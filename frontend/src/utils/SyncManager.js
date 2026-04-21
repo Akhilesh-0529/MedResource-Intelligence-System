@@ -7,6 +7,7 @@ class SyncManager {
     this.queue = this.getQueue();
     this.api = null;
     this.getConnectionStatus = () => true;
+    this.isProcessing = false;
 
     // Fallback native event listener
     window.addEventListener('online', () => {
@@ -69,6 +70,9 @@ class SyncManager {
   async processQueue() {
     if (this.queue.length === 0) return;
     if (this.getConnectionStatus && !this.getConnectionStatus()) return;
+    if (this.isProcessing) return;
+
+    this.isProcessing = true;
 
     console.log(`[SyncManager] Replaying ${this.queue.length} offline actions...`);
     const currentQueue = [...this.queue];
@@ -78,24 +82,28 @@ class SyncManager {
     this.saveQueue();
 
     // Process sequentially
-    for (const action of currentQueue) {
-      try {
-        if (!this.api) throw new Error("SyncManager API not initialized");
-        await this.api.request({
-          method: action.method,
-          url: action.url,
-          data: action.data,
-          // bypass the offline interceptor check
-          headers: { 'X-Sync-Replay': 'true' } 
-        });
-        console.log(`[SyncManager] Successfully synced action ${action.id}`);
-      } catch (err) {
-        console.error(`[SyncManager] Failed to sync action ${action.id}`, err);
-        // If it was a network error, re-queue it. Otherwise (400, 500), drop it
-        if (!err.response) {
-            this.queue.push(action);
+    try {
+      for (const action of currentQueue) {
+        try {
+          if (!this.api) throw new Error("SyncManager API not initialized");
+          await this.api.request({
+            method: action.method,
+            url: action.url,
+            data: action.data,
+            // bypass the offline interceptor check
+            headers: { 'X-Sync-Replay': 'true' } 
+          });
+          console.log(`[SyncManager] Successfully synced action ${action.id}`);
+        } catch (err) {
+          console.error(`[SyncManager] Failed to sync action ${action.id}`, err);
+          // If it was a network error, re-queue it. Otherwise (400, 500), drop it
+          if (!err.response) {
+              this.queue.push(action);
+          }
         }
       }
+    } finally {
+      this.isProcessing = false;
     }
     
     this.saveQueue();
