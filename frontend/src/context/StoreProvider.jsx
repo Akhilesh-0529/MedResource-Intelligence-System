@@ -15,6 +15,16 @@ const cacheData = (key, data) => {
   try { localStorage.setItem(key, JSON.stringify(data)); } catch { /* storage full */ }
 };
 
+const getPatientIdentity = (patient) => patient.clientId || patient._id;
+
+const mergeByPatientIdentity = (list) => {
+  const merged = new Map();
+  list.forEach((patient) => {
+    merged.set(getPatientIdentity(patient), patient);
+  });
+  return Array.from(merged.values());
+};
+
 export const StoreProvider = ({ children }) => {
   const [resources, setResources] = useState(() => getCachedData(CACHE_KEY_RESOURCES));
   const [patients, setPatients] = useState(() => getCachedData(CACHE_KEY_PATIENTS));
@@ -139,9 +149,9 @@ export const StoreProvider = ({ children }) => {
         if (index > -1) {
           const newPatients = [...prev];
           newPatients[index] = updatedPatient;
-          return newPatients;
+          return mergeByPatientIdentity(newPatients);
         }
-        return [...prev, updatedPatient];
+        return mergeByPatientIdentity([...prev, updatedPatient]);
       });
     });
 
@@ -160,7 +170,7 @@ export const StoreProvider = ({ children }) => {
     setPatients((prev) => {
       const index = prev.findIndex(p => p._id === optimisticData._id);
       if (index > -1) return prev;
-      return [...prev, optimisticData];
+      return mergeByPatientIdentity([...prev, optimisticData]);
     });
   };
 
